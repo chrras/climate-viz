@@ -5,6 +5,15 @@
 var dataset = [[10.2, 1, 1], [14.2, 1, 2], [10.2, 1, 3], [14.2, 1, 4], [21.0, 2, 1], [3.2, 2, 2], [21.0, 2, 3], [3.2, 2, 4], [33.9, 3, 1], [24.0, 3, 2], [33.9, 3, 3], [24.0, 3, 4],
 [10.2, 4, 1], [14.2, 4, 2], [10.2, 4, 3], [14.2, 4, 4], [21.0, 5, 1], [3.2, 5, 2], [21.0, 5, 3], [3.2, 5, 4], [33.9, 6, 1], [24.0, 6, 2], [33.9, 6, 3], [24.0, 6, 4]]
 
+
+// Import data from CSV
+/*d3.csv('data-gitignore/temperatures_nyc.csv', function(error, dataset) {  // NEW
+  dataset.forEach(function(d) {                    // NEW
+    d.count = +d.count;                            // NEW
+  });*/
+
+
+
 /*var dataset = [];
 var day = 1;
 var hour = 0;
@@ -28,12 +37,8 @@ var paddingBottom = 0;
 var paddingLeft = 20;
 var paddingRight = 10;
 var dotRadius = 5
+var dotSpacing = 0.5 // in percent of radius
 
-// Import data from CSV
-/*d3.csv('data-gitignore/temperatures_nyc.csv', function(error, dataset) {  // NEW
-  dataset.forEach(function(d) {                    // NEW
-    d.count = +d.count;                            // NEW
-  });*/
 
 
 //Create SVG element
@@ -44,11 +49,11 @@ var svg = d3.select("body")
 
 var xScale = d3.scale.linear()
     .domain([1, 6])
-    .range([dotRadius * 2.5, dotRadius * 2.5 * 6]);
+    .range([dotRadius * (2 + dotSpacing), dotRadius * (2 + dotSpacing) * 6]);
 
 var yScale = d3.scale.linear()
     .domain([1, 4])
-    .range([dotRadius * 2.5 * 4, dotRadius * 2.5]);
+    .range([dotRadius * (2 + dotSpacing) * 4, dotRadius * (2 + dotSpacing)]);
 
 /*
 var xScale = d3.scale.linear()
