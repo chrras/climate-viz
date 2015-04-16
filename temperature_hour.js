@@ -23,7 +23,7 @@ for (var i = 0; i < 8760; i++) {
 
 var w = 700;
 var h = 300;
-var padding = 30;
+var padding = 100;
 
 //Create SVG element
 var svg = d3.select("body")
