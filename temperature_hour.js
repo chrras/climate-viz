@@ -25,9 +25,9 @@ var w = 400;
 var h = 400;
 var paddingTop = 0;
 var paddingBottom = 0;
-var paddingLeft = 10;
+var paddingLeft = 20;
 var paddingRight = 10;
-var dotRadius = 7
+var dotRadius = 5
 
 // Import data from CSV
 /*d3.csv('data-gitignore/temperatures_nyc.csv', function(error, dataset) {  // NEW
@@ -42,9 +42,13 @@ var svg = d3.select("body")
     .attr("width", w)
     .attr("height", h);
 
-var xyScale = d3.scale.linear()
+var xScale = d3.scale.linear()
     .domain([1, 6])
     .range([dotRadius * 2.5, dotRadius * 2.5 * 6]);
+
+var yScale = d3.scale.linear()
+    .domain([1, 4])
+    .range([dotRadius * 2.5 * 4, dotRadius * 2.5]);
 
 /*
 var xScale = d3.scale.linear()
@@ -70,20 +74,17 @@ var rScale = d3.scale.linear()
 
 //Define X axis
 var xAxis = d3.svg.axis()
-      .scale(xyScale)
-      .orient("bottom")
-      .ticks(2);
-
-
-/*
+    .scale(xScale)
+    .orient("bottom")
+    .ticks(2);
 
 //Define Y axis
 var yAxis = d3.svg.axis()
     .scale(yScale)
     .orient("left")
-    .ticks(4);
+    .ticks(2);
     //.tickFormat(formatAsPercentage);
-*/
+
 
 
 
@@ -93,11 +94,11 @@ svg.selectAll("circle")
     .append("circle")
     .attr("cx", function(d) {
         //return xScale((d[1]-0.5) * dotRadius * 2.4);
-        return xyScale(d[1]);
+        return xScale(d[1]) + paddingLeft;
     })
     .attr("cy", function(d) {
         //return (d[2]-0.5) * dotRadius * 2.4;
-        return xyScale(d[2]);
+        return yScale(d[2]);
     })
     //.attr("r", dotRadius)
     .attr("r", function(d) {
@@ -126,15 +127,12 @@ svg.selectAll("circle")
 //Create X axis
 svg.append("g")
     .attr("class", "axis")
-    .attr("transform", "translate(0," + xyScale(5) + ")")
-    //.attr("transform", "translate(0," + xyScale(24) + ")")
+    .attr("transform", "translate(" + paddingLeft + "," + xScale(4+1) + ")")
+    //.attr("transform", "translate(0," + xyScale(24+1) + ")")
     .call(xAxis);
-
-/*
 
 //Create Y axis
 svg.append("g")
     .attr("class", "axis")
-    .attr("transform", "translate(" + padding + ",0)")
+    .attr("transform", "translate(" + paddingLeft + ",0)")
     .call(yAxis);
-*/
