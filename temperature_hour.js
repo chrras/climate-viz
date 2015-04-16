@@ -21,9 +21,20 @@ for (var i = 0; i < 8760; i++) {
     }
 }*/
 
-var w = 700;
-var h = 300;
-var padding = 100;
+var w = 400;
+var h = 400;
+var paddingTop = 0;
+var paddingBottom = 0;
+var paddingLeft = 10;
+var paddingRight = 10;
+var dotRadius = 7
+
+// Import data from CSV
+/*d3.csv('data-gitignore/temperatures_nyc.csv', function(error, dataset) {  // NEW
+  dataset.forEach(function(d) {                    // NEW
+    d.count = +d.count;                            // NEW
+  });*/
+
 
 //Create SVG element
 var svg = d3.select("body")
@@ -31,11 +42,18 @@ var svg = d3.select("body")
     .attr("width", w)
     .attr("height", h);
 
+var xyScale = d3.scale.linear()
+    .domain([1, 6])
+    .range([dotRadius * 2.5, dotRadius * 2.5 * 6]);
 
 /*
 var xScale = d3.scale.linear()
-    .domain([0, d3.max(dataset, function(d) { return d[0]; })])
-    .range([padding, w - padding * 2]);
+    .domain([
+        d3.min(dataset, function(d) { return d[1]; }),
+        d3.max(dataset, function(d) { return d[1]; })
+    ])
+    .range([0, w]);
+
 
 var yScale = d3.scale.linear()
     .domain([0, d3.max(dataset, function(d) { return d[1]; })])
@@ -48,12 +66,16 @@ var rScale = d3.scale.linear()
 
 //var formatAsPercentage = d3.format(".1%");
 
-/*
+
+
 //Define X axis
 var xAxis = d3.svg.axis()
-      .scale(xScale)
+      .scale(xyScale)
       .orient("bottom")
-      .ticks(12);
+      .ticks(2);
+
+
+/*
 
 //Define Y axis
 var yAxis = d3.svg.axis()
@@ -64,17 +86,23 @@ var yAxis = d3.svg.axis()
 */
 
 
+
 svg.selectAll("circle")
     .data(dataset)
     .enter()
     .append("circle")
     .attr("cx", function(d) {
-        return d[1] * 8;
+        //return xScale((d[1]-0.5) * dotRadius * 2.4);
+        return xyScale(d[1]);
     })
     .attr("cy", function(d) {
-        return d[2] * 8;
+        //return (d[2]-0.5) * dotRadius * 2.4;
+        return xyScale(d[2]);
     })
-    .attr("r", 3)
+    //.attr("r", dotRadius)
+    .attr("r", function(d) {
+        return dotRadius;
+    })
     .attr("fill", function(d) {
         return "rgba(255, 0, 0, " + d[0] / 35 + ")";
     });
@@ -94,12 +122,15 @@ svg.selectAll("circle")
 
 
 
-/*
+
 //Create X axis
 svg.append("g")
     .attr("class", "axis")
-    .attr("transform", "translate(0," + (h - padding) + ")")
+    .attr("transform", "translate(0," + xyScale(5) + ")")
+    //.attr("transform", "translate(0," + xyScale(24) + ")")
     .call(xAxis);
+
+/*
 
 //Create Y axis
 svg.append("g")
