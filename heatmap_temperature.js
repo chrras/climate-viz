@@ -51,6 +51,9 @@ d3.csv("data-gitignore/temperatures_nyc.csv", function(error, dataset) {
         .domain([0, 30])
         .range([0, 1]);
 
+    var dotScale = d3.scale.linear()
+        .range([1, 3]);
+
 
     // Define X axis
     var xAxis = d3.svg.axis()
@@ -66,10 +69,16 @@ d3.csv("data-gitignore/temperatures_nyc.csv", function(error, dataset) {
         .ticks(2);
 
 
+    // var zoom = d3.behavior.zoom()
+    //     .scaleExtent([1, 1])
+    //     .x(xScale)
+    //     .on("zoom", zoomed);
+
     var zoom = d3.behavior.zoom()
         .scaleExtent([1, 1])
         .x(xScale)
         .on("zoom", zoomed);
+    
         
 
     // Create SVG canvas
@@ -80,6 +89,14 @@ d3.csv("data-gitignore/temperatures_nyc.csv", function(error, dataset) {
         .call(zoom);
 
     function zoomed() {
+        var t = zoom.translate(),
+            tx = t[0],
+            ty = t[1];
+
+        tx = Math.min(tx, 0); // tx < 0
+        tx = Math.max(tx,  800 - xScale(days)); // Need a fix!!
+        zoom.translate([tx, ty]);
+
         svg.select(".x.axis").call(xAxis);
         svg.selectAll("ellipse")
             .attr("cx", function(d) { return xScale(d.day) + paddingLeft; })
