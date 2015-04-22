@@ -25,9 +25,9 @@ d3.csv("data-gitignore/temperatures_nyc.csv", function(error, dataset) {
     var paddingBottom = 0;
     var paddingLeft = 25;
     var paddingRight = 0;
-    var dotWidth = 3 // zoom out = 1
-    var dotRadius = 3 // default 3 or 4
-    var dotSpacing = 0.5
+    var dotWidth = 1 // zoom out = 1
+    var dotHeight = 5 // default 3 or 4
+    var dotSpacing = 1
 
 
     //----------------------------------
@@ -44,16 +44,12 @@ d3.csv("data-gitignore/temperatures_nyc.csv", function(error, dataset) {
 
     var yScale = d3.scale.linear()
         .domain([1, hours])
-        .range([(dotRadius * 2 + dotSpacing) * hours, dotRadius * 2 + dotSpacing]);
+        .range([(dotHeight * 2 + dotSpacing) * hours, dotHeight * 2 + dotSpacing]);
 
     var colorScale = d3.scale.linear()
         //.domain([tMin, tMax])
-        .domain([0, 30])
+        .domain([5, 35])
         .range([0, 1]);
-
-    var dotScale = d3.scale.linear()
-        .range([1, 3]);
-
 
     // Define X axis
     var xAxis = d3.svg.axis()
@@ -69,17 +65,14 @@ d3.csv("data-gitignore/temperatures_nyc.csv", function(error, dataset) {
         .ticks(2);
 
 
-    // var zoom = d3.behavior.zoom()
-    //     .scaleExtent([1, 1])
-    //     .x(xScale)
-    //     .on("zoom", zoomed);
+ 
 
     var zoom = d3.behavior.zoom()
-        .scaleExtent([1, 1])
+        .scaleExtent([dotWidth, dotHeight])
         .x(xScale)
-        .on("zoom", zoomed);
+        .on("zoom", zoomHandler);
     
-        
+ 
 
     // Create SVG canvas
     var svg = d3.select("body")
@@ -88,19 +81,20 @@ d3.csv("data-gitignore/temperatures_nyc.csv", function(error, dataset) {
         .attr("height", h)
         .call(zoom);
 
-    function zoomed() {
+    function zoomHandler() {
         var t = zoom.translate(),
             tx = t[0],
             ty = t[1];
 
         tx = Math.min(tx, 0); // tx < 0
-        tx = Math.max(tx,  800 - xScale(days)); // Need a fix!!
+        tx = Math.max(tx,  -1000); //
         zoom.translate([tx, ty]);
 
         svg.select(".x.axis").call(xAxis);
         svg.selectAll("ellipse")
             .attr("cx", function(d) { return xScale(d.day) + paddingLeft; })
-            .attr("cy", function(d) { return yScale(d.hour); });
+            .attr("cy", function(d) { return yScale(d.hour); })
+            .attr("rx", function(d) { return (dotWidth * d3.event.scale); });
     }
 
     //----------------------------------
@@ -123,6 +117,10 @@ d3.csv("data-gitignore/temperatures_nyc.csv", function(error, dataset) {
             return "rgba(100, 200, 200, " + colorScale(d.tOutC) + ")";
         });*/
 
+// .attr("cx", function(d, i) { return xAxisScale(d.cx); })
+// .attr("cy", function(d, i) { return yAxisScale(d.cy); })
+// .attr("r", function(d, i) { return (d.radius * scaleMultiplier); }); }
+
     // Heatmap ellipes
     svg.selectAll("ellipse")
         .data(dataset)
@@ -132,11 +130,10 @@ d3.csv("data-gitignore/temperatures_nyc.csv", function(error, dataset) {
         .attr("cx", function(d) { return xScale(d.day) + paddingLeft; })
         .attr("cy", function(d) { return yScale(d.hour); })
         .attr("rx", dotWidth)
-        .attr("ry", dotRadius)
-        //.attr("r", dotRadius)
-        .attr("fill", function(d) {
-            return "rgba(100, 200, 200, " + colorScale(d.tOutC) + ")";
-        });
+        //.attr("rx", dotWidth)
+        .attr("ry", dotHeight)
+        //.attr("r", dotHeight)
+        .attr("fill", function(d) { return "rgba(100, 200, 200, " + colorScale(d.tOutC) + ")"; });
 
 
     //Create X axis
