@@ -20,11 +20,11 @@ d3.csv("data-gitignore/temperatures_nyc.csv", function(error, dataset) {
         tMax = d3.max(dataset, function(d) { return d.tOutC; });
 
     var margin = {top: 20, right: 0, bottom: 0, left: 50},
-        width = 800 - margin.left - margin.right,
-        height = 300 - margin.top - margin.bottom;
+        width = 960 - margin.left - margin.right,
+        height = 200 - margin.top - margin.bottom;
     
     var dotWidth = 1,       // zoom out = 1
-        dotHeight = 4,      // default 3 or 4
+        dotHeight = 3,      // default 3 or 4
         dotSpacing = 0.5;
 
 
@@ -42,9 +42,11 @@ d3.csv("data-gitignore/temperatures_nyc.csv", function(error, dataset) {
         .range([(dotHeight * 2 + dotSpacing) * hours, dotHeight * 2 + dotSpacing]);
 
     var colorScale = d3.scale.linear()
-        //.domain([tMin, tMax])
-        .domain([5, 35])
-        .range([0, 1]);
+        .domain([tMin-5, (tMax-tMin)/2, tMax-5])
+        //.domain([tMin, 0, tMax])
+        .range(["#4575b4","#ffffdf", "#d73027"]);
+
+        
 
     // Define X axis
     var xAxis = d3.svg.axis()
@@ -115,7 +117,7 @@ d3.csv("data-gitignore/temperatures_nyc.csv", function(error, dataset) {
         .attr("cy", function(d) { return yScale(d.hour); })
         .attr("rx", dotWidth)
         .attr("ry", dotHeight)
-        .attr("fill", function(d) { return "rgba(100, 200, 200, " + colorScale(d.tOutC) + ")"; });
+        .attr("fill", function(d) { return colorScale(d.tOutC); });
 
     //Create X axis
     svg.append("g")
