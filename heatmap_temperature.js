@@ -19,13 +19,15 @@ d3.csv("data-gitignore/temperatures_nyc.csv", function(error, dataset) {
     var tMin = d3.min(dataset, function(d) { return d.tOutC; }),
         tMax = d3.max(dataset, function(d) { return d.tOutC; });
 
-    var margin = {top: 20, right: 0, bottom: 0, left: 50},
-        width = 960 - margin.left - margin.right,
-        height = 200 - margin.top - margin.bottom;
-    
     var dotWidth = 1,       // zoom out = 1
         dotHeight = 3,      // default 3 or 4
         dotSpacing = 0.5;
+
+    var margin = {top: 0, right: 0, bottom: 0, left: 25},
+        width = (dotWidth * 2 + dotSpacing) * days,
+        height = 200 - margin.top - margin.bottom;
+    
+
 
 
     //----------------------------------
@@ -72,8 +74,12 @@ d3.csv("data-gitignore/temperatures_nyc.csv", function(error, dataset) {
             ty = t[1];
 
         tx = Math.min(tx, 0); // tx < 0
-        tx = Math.max(tx,  -1000); //
+        tx = Math.max(tx,  width - (dotWidth * 2 + dotSpacing) * days * d3.event.scale); //
         zoom.translate([tx, ty]);
+
+        
+        //width - (dotWidth * d3.event.scale * 2 + dotSpacing)* days)
+        //(dotWidth * d3.event.scale + dotSpacing) * days - width
 
         svg.select(".x.axis").call(xAxis);
         svg.selectAll("ellipse")
@@ -96,7 +102,6 @@ d3.csv("data-gitignore/temperatures_nyc.csv", function(error, dataset) {
     svg.append("clipPath")
         .attr("id", "clip")
         .append("rect")
-        .attr("class", "mesh")
         .attr("width", width)
         .attr("height", height);
 
