@@ -1,6 +1,8 @@
 parseDate = d3.time.format("%d-%m-%y").parse
-//parseTime = d3.time.format("%H/%M").parse
-//parseDate('2003/01/01')
+parseTime = d3.time.format("%H.%M").parse
+
+yearday = d3.time.format("%j");
+hour = d3.time.format("%H");
 
 d3.csv("data-gitignore/temperatures_nyc_new.csv", function(error, dataset) {
     dataset.forEach(function(d) {
@@ -8,11 +10,12 @@ d3.csv("data-gitignore/temperatures_nyc_new.csv", function(error, dataset) {
         d.day = +d.day;
         d.hour = +d.hour;
         d.date = parseDate(d.date);
-        //d.clock = parseTime(d.time);
+        d.clock = parseTime(d.time);
         
     });
 
-console.log(d3.min(dataset, function(d) { return d.date }));
+console.log(d3.min(dataset, function(d) { return d.clock }));
+console.log(d3.max(dataset, function(d) { return d.clock }));
 
 /*var dates = [
     {"val":1,"key":"Jan"},
@@ -36,10 +39,16 @@ console.log(d3.min(dataset, function(d) { return d.date }));
     var days = 365;
     var hours = 24;
 
-/*    var days = d3.max(dataset, function(d) { return d.date; })
-        - d3.min(dataset, function(d) { return d.date; });
-    var hours = d3.max(dataset, function(d) { return d.hour; })
-        - d3.min(dataset, function(d) { return d.hour; });*/
+    
+
+
+    // var days = yearday(new Date (d3.max(dataset, function(d) { return d.date; })))
+    //     - yearday(new Date (d3.min(dataset, function(d) { return d.date; })));
+    // var hours = hour(new Date (d3.max(dataset, function(d) { return d.clock; })))
+    //     - hour(new Date (d3.min(dataset, function(d) { return d.clock; }))) + 1;
+
+    // var hours = d3.max(dataset, function(d) { return d.clock; })
+    //     - d3.min(dataset, function(d) { return d.clock; });
 
     var tMin = d3.min(dataset, function(d) { return d.tOutC; }),
         tMax = d3.max(dataset, function(d) { return d.tOutC; });
@@ -48,7 +57,7 @@ console.log(d3.min(dataset, function(d) { return d.date }));
         dotHeight = 4,      // default 3 or 4
         dotSpacing = 0.5;
 
-    var margin = {top: 0, right: 35, bottom: 40, left: 35},
+    var margin = {top: 0, right: 35, bottom: 40, left: 40},
         width = (dotWidth * 2 + dotSpacing) * days,
         height = (dotHeight * 2 + dotSpacing) * hours;//200 - margin.top - margin.bottom;
     
@@ -72,19 +81,25 @@ console.log(d3.min(dataset, function(d) { return d.date }));
         .domain([new Date(2015, 0, 1), new Date(2015, 11, 31)])
         .range([0, width]);
 
-    console.log(xScale.domain())
-    console.log(xScale.range())
-    //console.log(d.hour);
+    
+    //console.log(hour(new Date (d3.min(dataset, function(d) { return d.clock; }))));
 
-    var yScale = d3.scale.linear()
-        .domain([1, hours])
+    // var yScale = d3.scale.linear()
+    //     .domain([1, hours])
+    //     .range([(dotHeight * 2 + dotSpacing) * hours, dotHeight * 2 + dotSpacing]);
+
+    var yScale = d3.time.scale()
+        //.domain([hour(new Date (d3.min(dataset, function(d) { return d.clock; }))),
+        //    hour(new Date (d3.max(dataset, function(d) { return d.clock; })))])
+        .domain([d3.min(dataset, function(d) { return d.clock }), d3.max(dataset, function(d) { return d.clock })])
         .range([(dotHeight * 2 + dotSpacing) * hours, dotHeight * 2 + dotSpacing]);
 
     var colorScale = d3.scale.linear()
         .domain([tMin-5, (tMax-tMin)/2, tMax-5])
         .range(["#4575b4","#ffffdf", "#d73027"]);
 
-        
+    console.log(yScale.domain());
+    console.log(yScale.range());
 
     // Define X axis
     // var xAxis = d3.svg.axis()
@@ -95,6 +110,7 @@ console.log(d3.min(dataset, function(d) { return d.date }));
         .scale(xScale)
         .orient("bottom")
         .ticks(d3.time.months)
+        //.tickValues([1, 2, 3, 5, 8, 13])
         .tickFormat(d3.time.format("%b"));
         //.tickFormat(d3.time.format("%b%e" + "st"));
 
@@ -105,7 +121,18 @@ console.log(d3.min(dataset, function(d) { return d.date }));
     var yAxis = d3.svg.axis()
         .scale(yScale)
         .orient("left")
-        .ticks(2);
+        //.ticks(d3.time.hours, 6)
+        //.tickSize(10, 10, 0)
+        
+        .tickValues(d3.time.hour.range(
+                            new Date(1900,0,1,0),
+                            new Date(1900,0,1,23), 6))
+        .tickFormat(d3.time.format("%H h"));
+
+    // console.log(d3.time.hours(
+    //                         new Date(1900,0,1,0),
+    //                         new Date(1900,0,1,23), 6)
+    //                         );
 
     // Zoom behavior
     var zoom = d3.behavior.zoom()
@@ -126,7 +153,7 @@ console.log(d3.min(dataset, function(d) { return d.date }));
         svg.select(".x.axis").call(xAxis);
         svg.selectAll("ellipse")
             .attr("cx", function(d) { return xScale(d.date); })
-            .attr("cy", function(d) { return yScale(d.hour); })
+            .attr("cy", function(d) { return yScale(d.clock); })
             .attr("rx", function(d) { return (dotWidth * d3.event.scale); });
     }
 
@@ -164,7 +191,7 @@ console.log(d3.min(dataset, function(d) { return d.date }));
         .enter()
         .append("ellipse")
         .attr("cx", function(d) { return xScale(d.date); })
-        .attr("cy", function(d) { return yScale(d.hour); })
+        .attr("cy", function(d) { return yScale(d.clock); })
         .attr("rx", dotWidth)
         .attr("ry", dotHeight)
         .attr("fill", function(d) { return colorScale(d.tOutC); });
@@ -172,8 +199,10 @@ console.log(d3.min(dataset, function(d) { return d.date }));
     //Create X axis
     svg.append("g")
         .attr("class", "x axis")
-        .attr("transform", "translate(0," + yScale(0) + ")")
+        .attr("transform", "translate(0," + (yScale(d3.min(dataset, function(d) { return d.clock })) + dotHeight * 2 +dotSpacing ) + ")")
         .call(xAxis)
+
+    console.log(yScale(d3.min(dataset, function(d) { return d.clock })))
 
     //Create Y axis
     svg.append("g")
